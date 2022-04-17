@@ -11,7 +11,7 @@
         {
           "name": "WebSim AVR Boards",
           "architecture": "avr",
-          "version": "1.0.1",
+          "version": "1.0.2",
           "category": "contributed",
           "help": {"online": "https://websim-arduino.web.app"},
           "url": "https://github.com/OpenDevice/websim-arduino-package/blob/master/websim-avr-1.0.zip?raw=true",
@@ -44,13 +44,13 @@
                 "host":"x86_64-linux-gnu",
                 "url":"https://github.com/OpenDevice/websim-arduino-package/blob/master/tools/webuploader-1.0.0.zip?raw=true",
                 "archiveFileName":"webuploader-1.0.zip",
-                "size":"175393"
+                "size":"175516"
             },
             {
                 "host":"i686-mingw32",
                 "url":"https://github.com/OpenDevice/websim-arduino-package/blob/master/tools/webuploader-1.0.0.zip?raw=true",
                 "archiveFileName":"webuploader-1.0.zip",
-                "size":"175393"
+                "size":"175516"
             }
           ]
         }
