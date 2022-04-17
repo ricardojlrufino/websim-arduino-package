@@ -1,8 +1,5 @@
 package io.opendevice.webuploader;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
 import java.net.InetSocketAddress;
 import java.net.UnknownHostException;
 import java.nio.ByteBuffer;
@@ -16,6 +13,10 @@ import org.java_websocket.server.WebSocketServer;
 
 
 public class WSServer extends WebSocketServer {
+  
+  public static final String WEB_SIGNATURE = "{\"from\":\"web\"";
+
+  public static WebSocket webClient;
 
   public WSServer(int port) throws UnknownHostException {
     super(new InetSocketAddress(port));
@@ -34,8 +35,7 @@ public class WSServer extends WebSocketServer {
     
     conn.send("Welcome to the WebSIM server!"); //This method sends a message to the new client
     
-    System.out.println(
-        conn.getRemoteSocketAddress().getAddress().getHostAddress() + " entered the room!");
+    System.out.println("[server]" +conn.getRemoteSocketAddress().getAddress().getHostAddress() + " entered the room!");
   }
 
   @Override
@@ -48,13 +48,26 @@ public class WSServer extends WebSocketServer {
   public void onMessage(WebSocket conn, String message) {
     broadcast(message);
     System.out.println(conn + ": " + message);
+    
+    if(message.contains(WEB_SIGNATURE)) {
+      WSServer.webClient = conn;
+    }
+    
   }
 
   @Override
   public void onMessage(WebSocket conn, ByteBuffer message) {
-    // Send to web-browser... (and all clients)
-    broadcast(message);
-    System.out.println(conn + ": Binary message" + message);
+    
+    // Send to web-browser...
+    if(WSServer.webClient != null && WSServer.webClient.isOpen()) {
+      WSServer.webClient.send(message);
+    }else { // try to send to all clients...
+      broadcast(message);  
+    }
+    
+    System.out.println("[server] " + conn + ": Binary message" + message);
+    
+    conn.close(); // force client close...
   }
 
   @Override
@@ -70,6 +83,20 @@ public class WSServer extends WebSocketServer {
     System.out.println("Server started on port :" + this.getPort());
     setConnectionLostTimeout(0);
     setConnectionLostTimeout(100);
+    
+    // Clean shuwdown...
+    Runtime.getRuntime().addShutdownHook(new Thread() {
+      @Override
+      public void run() {
+        try {
+          WSServer.this.stop();
+        } catch (InterruptedException e) {
+          e.printStackTrace();
+        }
+      }
+    });
+
   }
+  
 
 }

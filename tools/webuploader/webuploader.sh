@@ -1,21 +1,9 @@
 #!/bin/sh
 
-echo "UPLOAD DONE.... java; $JAVA_HOME" 
 FILE="$1"
-APP="webuploader.jar"
-ADDR="http://localhost:8887"
+APP="/media/ricardo/Dados/Workspace/Arduino/websim-arduino-package/tools/webuploader-src/target/webuploader-jar-with-dependencies.jar"
+echo "Uploading..."
+java -jar $APP $FILE &
 
-# Check if server is running
-
-curl -sSf $ADDR > /dev/null
- 
-if [ $? -ne 22 ] ## (22) == 404 WebSocket Upgrade Failure
-then
-   echo "##### Starting Upload Server..."   
-   java -jar $APP &
-   sleep 10
-fi
-
-# echo send file info
-
-java -jar $APP -f $FILE
+# wait for show serial on console...
+sleep 4

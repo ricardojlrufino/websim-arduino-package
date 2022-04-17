@@ -5,7 +5,6 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 
 import org.java_websocket.client.WebSocketClient;
 import org.java_websocket.drafts.Draft;
@@ -14,10 +13,11 @@ import org.java_websocket.handshake.ServerHandshake;
 
 public class WSClientSendFile {
 
-  public static void send(final Path file) throws URISyntaxException, InterruptedException {
+  public static boolean send(final Path file) throws URISyntaxException, InterruptedException {
 
     Draft[] drafts = { new Draft_6455() };
 
+    // Create client to previous started server..
     WebSocketClient client = new WebSocketClient(new URI("ws://localhost:" + Main.PORT), drafts[0]) {
 
       @Override
@@ -27,15 +27,19 @@ public class WSClientSendFile {
           
           // Read file and send to WSServer ... to delivery to browser...
           byte[] bytes = Files.readAllBytes(file);
-          this.send(bytes);
           
-          System.out.print("[client] send ("+bytes.length+") : ");
+          // Print some bytes to Console...
+          System.out.print("[client] hex bytes ("+bytes.length+") : ");
           for (int i = 0; i < 40; i++) {
             System.out.print(bytes[i]);
             System.out.print(",");
           }
           System.out.println();
           
+          
+          // Send File ...
+          this.send(bytes);
+      
         } catch (IOException e) {
           e.printStackTrace();
           this.close();
@@ -46,7 +50,7 @@ public class WSClientSendFile {
       @Override
       public void onMessage(String message) {
         
-        System.out.println("[client]:"+message);
+        System.out.println("[client]:received: "+message);
         
         if(message.equals("/cmd/received")) {
           
@@ -55,24 +59,27 @@ public class WSClientSendFile {
 
       @Override
       public void onClose(int code, String reason, boolean remote) {
-        System.out.println("[client]: closing ...");
+        //System.out.println("[client]: closing ..." + code);
       }
 
       @Override
       public void onError(Exception ex) {
         // TODO Auto-generated method stub
-        
       }
-      
     };
     
     boolean connected = client.connectBlocking();
     
-    if(!connected) {
-      System.err.println("Connection fail...");
+    if(connected) {
+      // Wait for server close conection...
+      while(client.isOpen()) {
+        Thread.sleep(1000);
+      }
+      // client.close();
+      return true;
     }else {
-      Thread.sleep(1000);
-      client.close();
+      //System.err.println("Connection fail...");
+      return false;
     }
 
   }
