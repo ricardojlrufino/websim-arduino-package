@@ -2,7 +2,7 @@
 
 Arduino Board Package
 
-See more info on: https://github.com/OpenDevice/websim-arduino-docs/wiki
+See more info on: https://github.com/OpenDevice/websim-arduino-docs/wiki/Install
 
 ## Boards Manager URL
 
