@@ -14,7 +14,7 @@
           "version": "1.0.0",
           "category": "contributed",
           "help": {"online": "https://websim-arduino.web.app"},
-          "url": "http://localhost:3000/websim-arduino-package/websim-avr-1.0.zip",
+          "url": "https://github.com/OpenDevice/websim-arduino-package/blob/master/websim-avr-1.0.zip?raw=true",
           "archiveFileName": "websim-avr-1.0.zip",
           "size": "5588",
           "boards": [
@@ -42,7 +42,7 @@
           "systems": [
             {
                 "host":"x86_64-linux-gnu",
-                "url":"http://localhost:3000/websim-arduino-package/tools/webuploader-1.0.0.zip",
+                "url":"https://github.com/OpenDevice/websim-arduino-package/blob/master/tools/webuploader-1.0.0.zip?raw=true",
                 "archiveFileName":"webuploader-1.0.zip",
                 "size":"161892"
             }
