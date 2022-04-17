@@ -1,0 +1,54 @@
+{
+  "packages": [
+    {
+      "name": "websim",
+      "maintainer": "Ricardo JL Rufino",
+      "websiteURL": "https://websim-arduino.web.app",
+      "email": "ricardo.jl.rufino@gmail.com",
+      "help": {"online": "https://github.com/OpenDevice/websim-arduino"},
+
+      "platforms": [
+        {
+          "name": "WebSim AVR Boards",
+          "architecture": "avr",
+          "version": "1.0.0",
+          "category": "contributed",
+          "help": {"online": "https://websim-arduino.web.app"},
+          "url": "http://localhost:3000/websim-arduino-package/websim-avr-1.0.zip",
+          "archiveFileName": "websim-avr-1.0.zip",
+          "size": "5588",
+          "boards": [
+            {"name": "WebSim UNO"}
+          ],
+          "toolsDependencies": [
+            {
+              "packager": "arduino",
+              "name": "avr-gcc",
+              "version": "4.8.1-arduino5"
+            },
+            {
+              "packager": "websim",
+              "name": "webuploader",
+              "version": "1.0"
+            }
+          ]
+        }
+      ],
+
+      "tools": [
+        {
+          "name":"webuploader",
+          "version":"1.0",
+          "systems": [
+            {
+                "host":"x86_64-linux-gnu",
+                "url":"http://localhost:3000/websim-arduino-package/tools/webuploader-1.0.0.zip",
+                "archiveFileName":"webuploader-1.0.zip",
+                "size":"161892"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

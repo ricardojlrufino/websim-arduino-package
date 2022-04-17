@@ -1,0 +1,23 @@
+# See: http://code.google.com/p/arduino/wiki/Platforms
+
+menu.cpu=Processor
+
+##############################################################
+
+
+websim-uno.name=WebSim UNO (Default - 16mhz)
+websim-uno.upload.using=webuploader
+websim-uno.upload.tool=webuploader
+websim-uno.upload.protocol=websocket
+websim-uno.upload.maximum_size=32256
+websim-uno.upload.maximum_data_size=2048
+websim-uno.upload.wait_for_upload_port = false
+websim-uno.upload.use_1200bps_touch = false
+websim-uno.upload.disable_flushing = false
+
+websim-uno.build.mcu=atmega328p
+websim-uno.build.f_cpu=16000000L
+websim-uno.build.board=AVR_UNO
+websim-uno.build.core=arduino:arduino
+websim-uno.build.variant=standard
+
