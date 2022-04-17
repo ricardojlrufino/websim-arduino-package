@@ -38,19 +38,19 @@
       "tools": [
         {
           "name":"webuploader",
-          "version":"1.0",
+          "version":"1.0.0",
           "systems": [
             {
                 "host":"x86_64-linux-gnu",
-                "url":"https://github.com/OpenDevice/websim-arduino-package/blob/master/tools/webuploader-1.0.0.zip?raw=true",
-                "archiveFileName":"webuploader-1.0.zip",
-                "size":"175516"
+                "url":"https://github.com/OpenDevice/websim-arduino-package/blob/master/tools/webuploader-1.0.0.tar.gz?raw=true",
+                "archiveFileName":"webuploader-1.0.0.tar.gz",
+                "size":"175173"
             },
             {
                 "host":"i686-mingw32",
-                "url":"https://github.com/OpenDevice/websim-arduino-package/blob/master/tools/webuploader-1.0.0.zip?raw=true",
-                "archiveFileName":"webuploader-1.0.zip",
-                "size":"175516"
+                "url":"https://github.com/OpenDevice/websim-arduino-package/blob/master/tools/webuploader-1.0.0.tar.gz?raw=true",
+                "archiveFileName":"webuploader-1.0.0.tar.gz",
+                "size":"175173"
             }
           ]
         }
