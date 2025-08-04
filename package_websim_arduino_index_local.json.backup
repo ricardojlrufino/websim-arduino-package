@@ -6,7 +6,7 @@
       "websiteURL": "https://websim-arduino.web.app",
       "email": "ricardo.jl.rufino@gmail.com",
       "help": {
-        "online": "https://github.com/ricardojlrufino/websim-arduino"
+        "online": "https://github.com/OpenDevice/websim-arduino"
       },
       "platforms": [
         {
@@ -17,9 +17,10 @@
           "help": {
             "online": "https://websim-arduino.web.app"
           },
-          "url": "https://github.com/ricardojlrufino/websim-arduino-package/blob/master/websim-avr-0.1.2.zip?raw=true",
-          "archiveFileName": "websim-avr-0.1.2.zip",
+          "url": "http://localhost:3000/websim-avr-1.2.zip?raw=true",
+          "archiveFileName": "websim-avr-1.2.zip",
           "size": "5376",
+          "checksum": "SHA-256:7a281be31988faa84c946b4e89a03d4ee131b5a50d782b5ba3d93114991de258",
           "boards": [
             {
               "name": "WebSim UNO"
@@ -29,15 +30,14 @@
             {
               "packager": "arduino",
               "name": "avr-gcc",
-              "version": "4.8.1-arduino2"
+              "version": "7.3.0-atmel3.6.1-arduino7"
             },
             {
               "packager": "websim",
               "name": "webuploader",
               "version": "1.2.0"
             }
-          ],
-          "checksum": "SHA-256:7a281be31988faa84c946b4e89a03d4ee131b5a50d782b5ba3d93114991de258"
+          ]
         }
       ],
       "tools": [
@@ -47,15 +47,17 @@
           "systems": [
             {
               "host": "x86_64-linux-gnu",
-              "url": "https://github.com/ricardojlrufino/websim-arduino-package/blob/master/tools/webuploader/webuploader-1.2.0.tar.gz?raw=true",
+              "url": "http://localhost:3000/tools/webuploader-goport/webuploader-1.2.0.tar.gz?raw=true",
               "archiveFileName": "webuploader-1.2.0.tar.gz",
-              "size": "175173"
+              "size": "10330887",
+              "checksum": "SHA-256:95bddd86bb4081e0171005d0e733c7f60ea8fb25075eb5254ec2dffffd505b5f"
             },
             {
               "host": "i686-mingw32",
-              "url": "https://github.com/ricardojlrufino/websim-arduino-package/blob/master/tools/webuploader/webuploader-1.2.0.tar.gz?raw=true",
+              "url": "http://localhost:3000/tools/webuploader-goport/webuploader-1.2.0.tar.gz?raw=true",
               "archiveFileName": "webuploader-1.2.0.tar.gz",
-              "size": "175173"
+              "size": "10330887",
+              "checksum": "SHA-256:95bddd86bb4081e0171005d0e733c7f60ea8fb25075eb5254ec2dffffd505b5f"
             }
           ]
         }

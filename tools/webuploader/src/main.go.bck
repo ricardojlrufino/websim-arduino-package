@@ -1,0 +1,363 @@
+package main
+
+import (
+	"fmt"
+	"io/ioutil"
+	"log"
+	"net"
+	"net/http"
+	"net/url"
+	"os"
+	"os/exec"
+	"os/signal"
+	"strings"
+	"syscall"
+	"time"
+    "webuploader/src/utils"
+
+	"github.com/gorilla/websocket"
+)
+
+const PORT = 8887
+const (
+	WEB_SIGNATURE = `{"from":"web"`
+)
+
+var upgrader = websocket.Upgrader{
+	CheckOrigin: func(r *http.Request) bool {
+		return true // Allow connections from any origin
+	},
+}
+
+type WSServer struct {
+	webClient *websocket.Conn
+	clients   map[*websocket.Conn]bool
+}
+
+func NewWSServer() *WSServer {
+	return &WSServer{
+		clients: make(map[*websocket.Conn]bool),
+	}
+}
+
+// handleWebSocket manages WebSocket connections from both web and CLI clients.
+// It upgrades HTTP connections to WebSocket protocol, maintains client connections,
+// and routes messages between clients. The function:
+// - Adds new connections to the clients map
+// - Identifies web clients vs CLI clients based on URL parameters
+// - Launches the web interface if a CLI client connects without a web client present
+// - Processes incoming text and binary messages
+// - Cleans up connections when they're closed
+func (ws *WSServer) handleWebSocket(w http.ResponseWriter, r *http.Request) {
+	conn, err := upgrader.Upgrade(w, r, nil)
+	if err != nil {
+		log.Printf("Failed to upgrade connection: %v", err)
+		return
+	}
+	defer conn.Close()
+
+	ws.clients[conn] = true
+	defer delete(ws.clients, conn)
+
+	// Send welcome message
+	conn.WriteMessage(websocket.TextMessage, []byte("Welcome to the WebSIM server!"))
+
+	// Check if this is a web client connection
+	uri := r.URL.String()
+	if strings.Contains(uri, "from=web") {
+		ws.webClient = conn
+		log.Printf("Web client connected from %s", conn.RemoteAddr())
+	} else {
+		// CLI connection
+		if ws.webClient == nil {
+			conn.WriteMessage(websocket.TextMessage, []byte("###### WARN: NO WEB Client connected !! opening https://websim-arduino.web.app"))
+			err := utils.OpenURL("https://websim-arduino.web.app")
+			if err != nil {
+				fmt.Print("[uploader] Error openning browser")
+				fmt.Print("[uploader] Please open 'https://websim-arduino.web.app' on browser")
+				
+			}
+		}
+		log.Printf("CLI client connected from %s", conn.RemoteAddr())
+	}
+
+	for {
+		messageType, message, err := conn.ReadMessage()
+		if err != nil {
+			log.Printf("Error reading message: %v", err)
+			break
+		}
+
+		switch messageType {
+		case websocket.TextMessage:
+			ws.handleTextMessage(conn, string(message))
+		case websocket.BinaryMessage:
+			ws.handleBinaryMessage(conn, message)
+		}
+	}
+
+	// Clean up web client reference if this was the web client
+	if conn == ws.webClient {
+		ws.webClient = nil
+	}
+}
+
+func (ws *WSServer) handleTextMessage(sender *websocket.Conn, message string) {
+	log.Printf("Received text message: %s", message)
+	
+	// Broadcast to all clients
+	ws.broadcast(message)
+
+	// Check if this establishes the web client connection
+	if strings.Contains(message, WEB_SIGNATURE) {
+		ws.webClient = sender
+	}
+}
+
+func (ws *WSServer) handleBinaryMessage(sender *websocket.Conn, message []byte) {
+	log.Printf("Received binary message of size: %d bytes", len(message))
+
+	// Wait for web client connection for up to 10 seconds
+	if ws.webClient == nil {
+		sender.WriteMessage(websocket.TextMessage, []byte("Waiting for web browser to connect (timeout: 10s)..."))
+
+		timeout := time.After(10 * time.Second)
+		ticker := time.NewTicker(500 * time.Millisecond)
+		defer ticker.Stop()
+
+		for ws.webClient == nil {
+			select {
+			case <-ticker.C:
+				// Check if web client connected
+				if ws.webClient != nil {
+					sender.WriteMessage(websocket.TextMessage, []byte("Web browser client connected !"))
+					break
+				}
+			case <-timeout:
+				sender.WriteMessage(websocket.TextMessage, []byte("###### ERROR: Timed out waiting for web browser client"))
+				return
+			}
+		}
+
+	}
+
+	// Send to web browser if connected
+	if ws.webClient != nil {
+		err := ws.webClient.WriteMessage(websocket.BinaryMessage, message)
+		if err != nil {
+			log.Printf("Error sending to web client: %v", err)
+			sender.WriteMessage(websocket.TextMessage, []byte("###### WARN: Failed to send to web client"))
+		}
+	} 
+
+	// Close CLI connection after sending file
+	sender.Close()
+}
+
+func (ws *WSServer) broadcast(message string) {
+	for client := range ws.clients {
+		err := client.WriteMessage(websocket.TextMessage, []byte(message))
+		if err != nil {
+			log.Printf("Error broadcasting to client: %v", err)
+			client.Close()
+			delete(ws.clients, client)
+		}
+	}
+}
+
+func sendFile(filePath string, board string) error {
+	// Check if file exists
+	if _, err := os.Stat(filePath); os.IsNotExist(err) {
+		return fmt.Errorf("file does not exist: %s", filePath)
+	}
+
+	// Read file
+	fileData, err := ioutil.ReadFile(filePath)
+	if err != nil {
+		return fmt.Errorf("failed to read file: %v", err)
+	}
+
+	// Create WebSocket connection
+	u := url.URL{Scheme: "ws", Host: fmt.Sprintf("localhost:%d", PORT), Path: "/", RawQuery: "from=cli"}
+	conn, _, err := websocket.DefaultDialer.Dial(u.String(), nil)
+	if err != nil {
+		return fmt.Errorf("failed to connect: %v", err)
+	}
+	defer conn.Close()
+
+	// Send board change command if board is specified
+	if board != "" {
+		boardCmd := fmt.Sprintf(`{"action":"change-board", "board": "%s"}`, board)
+		err = conn.WriteMessage(websocket.TextMessage, []byte(boardCmd))
+		if err != nil {
+			return fmt.Errorf("failed to send board command: %v", err)
+		}
+		fmt.Printf("[ide] Board changed to: %s\n", board)
+	}
+
+	// Send file data
+	err = conn.WriteMessage(websocket.BinaryMessage, fileData)
+	if err != nil {
+		return fmt.Errorf("failed to send file: %v", err)
+	}
+
+	fmt.Printf("[ide] Send File (%s)\n",filePath)
+	fmt.Printf("[ide] hex size (%d)\n", len(fileData))
+	fmt.Println("[ide] upload finish !")
+
+	// Wait for server response or close
+	for {
+		_, message, err := conn.ReadMessage()
+		if err != nil {
+			break
+		}
+		fmt.Printf("[ide] received: %s\n", string(message))
+	}
+
+	return nil
+}
+
+func sendDebugInfo(message string) error {
+	// Create WebSocket connection
+	u := url.URL{Scheme: "ws", Host: fmt.Sprintf("localhost:%d", PORT), Path: "/", RawQuery: "from=cli"}
+	conn, _, err := websocket.DefaultDialer.Dial(u.String(), nil)
+	if err != nil {
+		return fmt.Errorf("failed to connect: %v", err)
+	}
+	defer conn.Close()
+
+	// Send debug message
+	err = conn.WriteMessage(websocket.TextMessage, []byte(message))
+	if err != nil {
+		return fmt.Errorf("failed to send debug info: %v", err)
+	}
+
+	time.Sleep(500 * time.Millisecond)
+	return nil
+}
+
+func isServerRunning() bool {
+	// Try to connect to see if server is already running
+	listener, err := net.Listen("tcp", fmt.Sprintf(":%d", PORT))
+	if err != nil {
+		// Port is already in use, server is probably running
+		return true
+	}
+
+	// Close the listener if we were able to bind to the port
+	listener.Close()
+	return false
+}
+
+func startServerInBackground() {
+	// Get the executable path
+	execPath, err := os.Executable()
+					if err != nil {
+		log.Fatalf("Failed to get executable path: %v", err)
+					}
+
+	// Start a new process in background
+	cmd := exec.Command(execPath, "--daemon")
+	cmd.Stdout = nil
+	cmd.Stderr = nil
+
+	// Start the process
+	err = cmd.Start()
+			if err != nil {
+		log.Fatalf("Failed to start daemon process: %v", err)
+	}
+
+	fmt.Println("[uploader] Server started in background")
+}
+
+func runServer() {
+	server := NewWSServer()
+
+	http.HandleFunc("/", server.handleWebSocket)
+
+	fmt.Printf("[uploader] Server started on port: %d\n", PORT)
+	fmt.Println("[uploader] Open: https://websim-arduino.web.app")
+
+	// Set up signal handling for graceful shutdown
+	c := make(chan os.Signal, 1)
+	signal.Notify(c, os.Interrupt, syscall.SIGTERM)
+
+	go func() {
+		<-c
+		fmt.Println("\nShutting down server...")
+		os.Exit(0)
+	}()
+
+	log.Fatal(http.ListenAndServe(fmt.Sprintf(":%d", PORT), nil))
+}
+
+func handleDebugBoard(hexFile string, board string) error {
+	// Create debug message
+	message := fmt.Sprintf("Debug mode activated for board: %s with hex file: %s", board, hexFile)
+
+	// Send debug information to server
+	return sendDebugInfo(message)
+}
+
+func main() {
+	args := os.Args[1:]
+
+	// Check if we're being started as a daemon
+	if len(args) > 0 && args[0] == "--daemon" {
+		runServer()
+		return
+	}
+
+	// Check if server is already running
+	serverRunning := isServerRunning()
+
+	// If server is not running, start it in background
+	if !serverRunning {
+		fmt.Println("[uploader] Starting server in background...")
+		startServerInBackground()
+
+		// Wait a moment for server to start
+		time.Sleep(2 * time.Second)
+	}
+
+	// Parse arguments
+	var filePath string
+	var board string
+	
+	for i := 0; i < len(args); i++ {
+		if args[i] == "--board" && i+1 < len(args) {
+			board = args[i+1]
+			i++ // Skip the next argument as it's the board name
+		} else if !strings.HasPrefix(args[i], "--") && filePath == "" {
+			filePath = args[i]
+		}
+	}
+
+	// If file path provided, try to send file
+	if filePath != "" {
+		err := sendFile(filePath, board)
+		if err != nil {
+			fmt.Printf("Error sending file: %v\n", err)
+			// If this failed and we just started the server, give it a bit more time
+			if !serverRunning {
+				fmt.Println("Waiting for server to fully start...")
+				time.Sleep(3 * time.Second)
+				err = sendFile(filePath, board)
+				if err != nil {
+					fmt.Printf("Second attempt failed: %v\n", err)
+				}
+			}
+		} else {
+			// Check for debug board flag (legacy support)
+			if len(args) > 2 && args[1] == "-b" {
+				debugBoard := args[2]
+				if strings.Contains(debugBoard, "_DBG") {
+					err := handleDebugBoard(filePath, debugBoard)
+					if err != nil {
+						log.Printf("Debug handling failed: %v", err)
+					}
+				}
+			}
+		}
+	}
+}

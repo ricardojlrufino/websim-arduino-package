@@ -17,7 +17,7 @@
           "help": {
             "online": "https://websim-arduino.web.app"
           },
-          "url": "https://github.com/ricardojlrufino/websim-arduino-package/blob/master/websim-avr-0.1.2.zip?raw=true",
+          "url": "http://localhost:3000/websim-avr-0.1.2.zip?raw=true",
           "archiveFileName": "websim-avr-0.1.2.zip",
           "size": "5376",
           "boards": [
@@ -47,13 +47,13 @@
           "systems": [
             {
               "host": "x86_64-linux-gnu",
-              "url": "https://github.com/ricardojlrufino/websim-arduino-package/blob/master/tools/webuploader/webuploader-1.2.0.tar.gz?raw=true",
+              "url": "http://localhost:3000/tools/webuploader/webuploader-1.2.0.tar.gz?raw=true",
               "archiveFileName": "webuploader-1.2.0.tar.gz",
               "size": "175173"
             },
             {
               "host": "i686-mingw32",
-              "url": "https://github.com/ricardojlrufino/websim-arduino-package/blob/master/tools/webuploader/webuploader-1.2.0.tar.gz?raw=true",
+              "url": "http://localhost:3000/tools/webuploader/webuploader-1.2.0.tar.gz?raw=true",
               "archiveFileName": "webuploader-1.2.0.tar.gz",
               "size": "175173"
             }

@@ -1,0 +1,88 @@
+# Binários compilados
+bin/
+dist/
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+
+# Arquivos de teste
+*.test
+
+# Cobertura de testes
+*.out
+coverage.txt
+coverage.html
+
+# Arquivos temporários do Go
+*.tmp
+*.swp
+*~
+
+# Dependency directories
+vendor/
+
+# Go workspace file
+go.work
+
+# IDEs
+.vscode/
+.idea/
+*.iml
+
+# macOS
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Windows
+*.lnk
+
+# Linux
+*~
+
+# Logs
+*.log
+logs/
+
+# Arquivos de configuração locais
+.env
+.env.local
+.env.*.local
+
+# Arquivos de build temporários
+*.orig
+*.rej
+
+# Backup files
+*.bak
+*.backup
+
+# Arquivos específicos do Arduino (para testes)
+*.hex
+*.elf
+build.options.json
+sketch/
+
+# Arquivos de distribuição
+*.tar.gz
+*.zip
+*.rar
+
+# Cache do Go
+.cache/
+
+# Arquivos de benchmark
+*.benchmarks
+
+# Arquivos de profile
+*.prof
+*.pprof
+
+# Documentação gerada
+docs/generated/

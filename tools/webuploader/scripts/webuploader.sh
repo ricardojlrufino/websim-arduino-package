@@ -1,12 +1,7 @@
 #!/bin/bash
-
 SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
-
 FILE="$1"
-#APP="/media/ricardo/Dados/Workspace/Arduino/websim-arduino-package/tools/webuploader-src/target/webuploader-jar-with-dependencies.jar"
-APP="${SCRIPT_DIR}/webuploader.jar"
-echo "Uploading..."
-java -jar $APP $FILE &
+webuploader-linux $1
 
 # wait for show serial on console...
 sleep 4

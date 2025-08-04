@@ -93,14 +93,13 @@ recipe.preproc.macros="{compiler.path}{compiler.cpp.cmd}" {compiler.cpp.flags} {
 # AVR Uploader/Programmers tools
 # ------------------------------
 
-
 tools.webuploader.cmd.path={runtime.tools.webuploader.path}
-tools.webuploader.cmd=webuploader.sh
-tools.webuploader.cmd.windows=webuploader.bat
+tools.webuploader.cmd=webuploader-linux
+tools.webuploader.cmd.windows=webuploader.exe
 
 tools.webuploader.upload.params.verbose=
 tools.webuploader.upload.params.quiet=
-tools.webuploader.upload.pattern="{cmd.path}/{cmd}" "{build.path}/{build.project_name}.hex"
+tools.webuploader.upload.pattern="{cmd.path}/{cmd}" "{build.path}/{build.project_name}.hex" --board "{build.board}"
  
 # USB Default Flags
 # Default blank usb manufacturer will be filled it at compile time

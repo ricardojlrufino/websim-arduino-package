@@ -2,7 +2,7 @@
 
 menu.cpu=Processor
 
-##############################################################
+########### UNO
 
 
 websim-uno.name=WebSim UNO (Default - 16mhz)
@@ -17,7 +17,24 @@ websim-uno.upload.disable_flushing = false
 
 websim-uno.build.mcu=atmega328p
 websim-uno.build.f_cpu=16000000L
-websim-uno.build.board=AVR_UNO
+websim-uno.build.board=UNO
 websim-uno.build.core=arduino:arduino
 websim-uno.build.variant=standard
 
+########### AkDev
+
+websim-akdev.name=WebSim AkDev Board
+websim-akdev.upload.using=webuploader
+websim-akdev.upload.tool=webuploader
+websim-akdev.upload.protocol=websocket
+websim-akdev.upload.maximum_size=32256
+websim-akdev.upload.maximum_data_size=2048
+websim-akdev.upload.wait_for_upload_port = false
+websim-akdev.upload.use_1200bps_touch = false
+websim-akdev.upload.disable_flushing = false
+
+websim-akdev.build.mcu=atmega328p
+websim-akdev.build.f_cpu=16000000L
+websim-akdev.build.board=AKDEV
+websim-akdev.build.core=arduino:arduino
+websim-akdev.build.variant=standard
