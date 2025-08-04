@@ -6,7 +6,7 @@ Board package to integrate [WebSIM](https://github.com/ricardojlrufino/websim-ar
 
 Install this package using Arduino IDE Board Manager.
 
-See more info on: https://github.com/ricardojlrufino/websim-arduino
+See more info on: https://github.com/ricardojlrufino/websim-arduino?tab=readme-ov-file#installation
 
 **Boards Manager URL**: 
 
